@@ -22,6 +22,9 @@ public class UserController {
 
     @RequestMapping(value = "/users", method = {RequestMethod.POST, RequestMethod.PUT})
     public User create(@Valid @RequestBody User user) {
+        if (user.getLogin().contains(" ")) {
+            throw new ValidationException("Логин не может содержать пробелы");
+        }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
