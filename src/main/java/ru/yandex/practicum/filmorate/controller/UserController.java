@@ -20,6 +20,7 @@ import java.util.Map;
 public class UserController {
 
     private final Map<Integer, User> users = new HashMap<>();
+    private int id;
 
     @GetMapping
     public Collection<User> findAll() {
@@ -37,6 +38,7 @@ public class UserController {
         }
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
+        user.setId(++id);
         users.put(user.getId(), user);
         return user;
     }

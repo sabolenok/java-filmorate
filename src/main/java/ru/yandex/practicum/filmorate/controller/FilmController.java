@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FilmController {
 
     private final Map<Integer, Film> films = new HashMap<>();
+    private int id;
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -37,6 +38,7 @@ public class FilmController {
         }
         log.info("Получен запрос к эндпоинту: '{} {}', Строка параметров запроса: '{}'",
                 request.getMethod(), request.getRequestURI(), request.getQueryString());
+        film.setId(++id);
         films.put(film.getId(), film);
         return film;
     }
