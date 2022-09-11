@@ -106,6 +106,26 @@ public class FilmControllerTests {
     }
 
     @Test
+    void shouldThrowNotFoundException() throws Exception {
+        Film film3 = new Film(
+                "3d film's name",
+                "3d film's description",
+                RELEASE_START_DATE.plusDays(1),
+                100
+        );
+        String req = objectMapper.writeValueAsString(film3);
+        // контроллер присвоит фильму самый первый id, т.е. = 1
+        mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
+        // поставим вручную фильму id = 3, и попробуем обновить его продолжительность
+        film3.setId(3);
+        film3.setDuration(95);
+        req = objectMapper.writeValueAsString(film3);
+        // должны получить статус 404
+        mockMvc.perform(put("/films").content(req).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void shouldThrowExceptionTryingToCreateFilmBecauseOfReleaseDate() throws Exception {
         Film film1 = new Film(
                 "1st film's name",
