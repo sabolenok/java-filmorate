@@ -58,7 +58,29 @@ public class FilmControllerTests {
     }
 
     @Test
-    void shouldReturnExceptionBecauseOfReleaseDate() throws Exception {
+    void shouldReturnNewCreatedFilm() throws Exception {
+        Film film1 = new Film(
+                "1st film's name",
+                "1st film's description",
+                RELEASE_START_DATE.plusDays(1),
+                65
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        String response = mockMvc.perform(
+                        post("/films").content(req).contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        Assertions.assertEquals(
+                response,
+                "{\"id\":1,\"name\":\"1st film's name\",\"description\":\"1st film's description\",\"releaseDate\":\"1895-12-29\",\"duration\":65}"
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionBecauseOfReleaseDate() throws Exception {
         Film film1 = new Film(
                 "1st film's name",
                 "1st film's description",
@@ -71,6 +93,65 @@ public class FilmControllerTests {
                 .andExpect(status().isBadRequest())
                 .andExpect(mvcResult ->
                         mvcResult.getResolvedException().getClass().equals(CustomValidationException.class)
+                );
+    }
+
+    @Test
+    void shouldThrowExceptionBecauseOfEmptyName() throws Exception {
+        Film film1 = new Film(
+                "",
+                "1st film's description",
+                RELEASE_START_DATE.plusDays(1),
+                65
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(
+                        post("/films").content(req).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(mvcResult ->
+                        mvcResult.getResolvedException().getMessage().equals("Название не может быть пустым")
+                );
+    }
+
+    @Test
+    void shouldThrowExceptionBecauseOfTooLongDescription() throws Exception {
+        Film film1 = new Film(
+                "Star Wars: Episode IV - A New Hope",
+                "A long time ago in a galaxy far, far away... " +
+                        "It is a period of civil war. Rebel spaceships, striking from a hidden base, " +
+                        "have won their first victory against the evil Galactic Empire. During the battle, " +
+                        "Rebel spies managed to steal secret plans to the Empire's ultimate weapon, " +
+                        "the DEATH STAR, an armored space station with enough power to destroy an entire planet.",
+                LocalDate.of(1977, 05, 25),
+                121
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(
+                        post("/films").content(req).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(mvcResult ->
+                        mvcResult.getResolvedException()
+                                .getMessage()
+                                .equals("Длина описания не может быть больше 200 символов")
+                );
+    }
+
+    @Test
+    void shouldThrowExceptionBecauseOfNegativeDuration() throws Exception {
+        Film film1 = new Film(
+                "1st film's name",
+                "1st film's description",
+                RELEASE_START_DATE.plusDays(1),
+                -1
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(
+                        post("/films").content(req).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(mvcResult ->
+                        mvcResult.getResolvedException()
+                                .getMessage()
+                                .equals("Продолжительность фильма должна быть положительной")
                 );
     }
 }
