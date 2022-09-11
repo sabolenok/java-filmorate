@@ -210,7 +210,7 @@ public class FilmControllerTests {
                         "have won their first victory against the evil Galactic Empire. During the battle, " +
                         "Rebel spies managed to steal secret plans to the Empire's ultimate weapon, " +
                         "the DEATH STAR, an armored space station with enough power to destroy an entire planet.",
-                LocalDate.of(1977, 05, 25),
+                LocalDate.of(1977, 5, 25),
                 121
         );
         String req = objectMapper.writeValueAsString(film1);
