@@ -80,7 +80,33 @@ public class FilmControllerTests {
     }
 
     @Test
-    void shouldThrowExceptionBecauseOfReleaseDate() throws Exception {
+    void shouldReturnNewUpdatedFilm() throws Exception {
+        Film film1 = new Film(
+                "1st film's name",
+                "1st film's description",
+                RELEASE_START_DATE.plusDays(1),
+                65
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
+        film1.setId(1);
+        film1.setDuration(120);
+        req = objectMapper.writeValueAsString(film1);
+        String response = mockMvc.perform(
+                        put("/films").content(req).contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        Assertions.assertEquals(
+                response,
+                "{\"id\":1,\"name\":\"1st film's name\",\"description\":\"1st film's description\",\"releaseDate\":\"1895-12-29\",\"duration\":120}"
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionTryingToCreateFilmBecauseOfReleaseDate() throws Exception {
         Film film1 = new Film(
                 "1st film's name",
                 "1st film's description",
@@ -97,7 +123,28 @@ public class FilmControllerTests {
     }
 
     @Test
-    void shouldThrowExceptionBecauseOfEmptyName() throws Exception {
+    void shouldThrowExceptionTryingToUpdateFilmBecauseOfReleaseDate() throws Exception {
+        Film film1 = new Film(
+                "1st film's name",
+                "1st film's description",
+                RELEASE_START_DATE.plusDays(1),
+                65
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
+        film1.setId(1);
+        film1.setReleaseDate(RELEASE_START_DATE.minusDays(1));
+        req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(
+                        put("/films").content(req).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(mvcResult ->
+                        mvcResult.getResolvedException().getClass().equals(CustomValidationException.class)
+                );
+    }
+
+    @Test
+    void shouldThrowExceptionTryingToCreateFilmBecauseOfEmptyName() throws Exception {
         Film film1 = new Film(
                 "",
                 "1st film's description",
@@ -114,7 +161,28 @@ public class FilmControllerTests {
     }
 
     @Test
-    void shouldThrowExceptionBecauseOfTooLongDescription() throws Exception {
+    void shouldThrowExceptionTryingToUpdateFilmBecauseOfEmptyName() throws Exception {
+        Film film1 = new Film(
+                "1st film's name",
+                "1st film's description",
+                RELEASE_START_DATE.plusDays(1),
+                65
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
+        film1.setId(1);
+        film1.setName("");
+        req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(
+                        put("/films").content(req).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(mvcResult ->
+                        mvcResult.getResolvedException().getMessage().equals("Название не может быть пустым")
+                );
+    }
+
+    @Test
+    void shouldThrowExceptionTryingToCreateFilmBecauseOfTooLongDescription() throws Exception {
         Film film1 = new Film(
                 "Star Wars: Episode IV - A New Hope",
                 "A long time ago in a galaxy far, far away... " +
@@ -137,7 +205,34 @@ public class FilmControllerTests {
     }
 
     @Test
-    void shouldThrowExceptionBecauseOfNegativeDuration() throws Exception {
+    void shouldThrowExceptionTryingToUpdateFilmBecauseOfTooLongDescription() throws Exception {
+        Film film1 = new Film(
+                "1st film's name",
+                "1st film's description",
+                RELEASE_START_DATE.plusDays(1),
+                65
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
+        film1.setId(1);
+        film1.setDescription("A long time ago in a galaxy far, far away... " +
+                "It is a period of civil war. Rebel spaceships, striking from a hidden base, " +
+                "have won their first victory against the evil Galactic Empire. During the battle, " +
+                "Rebel spies managed to steal secret plans to the Empire's ultimate weapon, " +
+                "the DEATH STAR, an armored space station with enough power to destroy an entire planet.");
+        req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(
+                        put("/films").content(req).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(mvcResult ->
+                        mvcResult.getResolvedException()
+                                .getMessage()
+                                .equals("Длина описания не может быть больше 200 символов")
+                );
+    }
+
+    @Test
+    void shouldThrowExceptionTryingToCreateFilmBecauseOfNegativeDuration() throws Exception {
         Film film1 = new Film(
                 "1st film's name",
                 "1st film's description",
@@ -153,6 +248,51 @@ public class FilmControllerTests {
                                 .getMessage()
                                 .equals("Продолжительность фильма должна быть положительной")
                 );
+    }
+
+    @Test
+    void shouldThrowExceptionTryingToUpdateFilmBecauseOfNegativeDuration() throws Exception {
+        Film film1 = new Film(
+                "1st film's name",
+                "1st film's description",
+                RELEASE_START_DATE.plusDays(1),
+                65
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
+        film1.setId(1);
+        film1.setDuration(-1);
+        req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(
+                        put("/films").content(req).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(mvcResult ->
+                        mvcResult.getResolvedException()
+                                .getMessage()
+                                .equals("Продолжительность фильма должна быть положительной")
+                );
+    }
+
+    @Test
+    void shouldReturnStatus400TryingToPostEmptyRequest() throws Exception {
+        mockMvc.perform(post("/films").content("").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    void shouldReturnStatus400TryingToPutEmptyRequest() throws Exception {
+        Film film1 = new Film(
+                "1st film's name",
+                "1st film's description",
+                RELEASE_START_DATE.plusDays(1),
+                65
+        );
+        String req = objectMapper.writeValueAsString(film1);
+        mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
+        mockMvc.perform(put("/films").content("").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
+
     }
 }
 
