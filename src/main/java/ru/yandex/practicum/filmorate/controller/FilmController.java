@@ -29,12 +29,6 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error(
-                    "Дата релиза должна быть не раньше 28.12.1895"
-            );
-            throw new CustomValidationException("Дата релиза должна быть не раньше 28.12.1895");
-        }
         log.info("Получен запрос к эндпоинту POST /films");
         film.setId(++id);
         films.put(film.getId(), film);
@@ -46,12 +40,6 @@ public class FilmController {
         if (!films.containsKey(film.getId())) {
             log.error("Фильм с Id = '{}' не найден", film.getId());
             throw new NotFoundException("Фильм не найден");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error(
-                    "Дата релиза должна быть не раньше 28.12.1895"
-            );
-            throw new CustomValidationException("Дата релиза должна быть не раньше 28.12.1895");
         }
         log.info("Получен запрос к эндпоинту: PUT / films");
         films.put(film.getId(), film);

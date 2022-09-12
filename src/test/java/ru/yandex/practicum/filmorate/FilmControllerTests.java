@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exception.CustomValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
@@ -138,7 +137,7 @@ public class FilmControllerTests {
                         post("/films").content(req).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(mvcResult ->
-                        mvcResult.getResolvedException().getClass().equals(CustomValidationException.class)
+                        mvcResult.getResolvedException().getClass().equals("Дата релиза должна быть не раньше 28.12.1895")
                 );
     }
 
@@ -159,7 +158,7 @@ public class FilmControllerTests {
                         put("/films").content(req).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(mvcResult ->
-                        mvcResult.getResolvedException().getClass().equals(CustomValidationException.class)
+                        mvcResult.getResolvedException().getMessage().equals("Дата релиза должна быть не раньше 28.12.1895")
                 );
     }
 
