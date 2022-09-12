@@ -10,7 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.controller.UserController;
-import ru.yandex.practicum.filmorate.exception.CustomValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -188,7 +187,7 @@ public class UserControllerTests {
                         post("/users").content(req).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(mvcResult ->
-                        mvcResult.getResolvedException().getClass().equals(CustomValidationException.class)
+                        mvcResult.getResolvedException().getMessage().equals("Логин не может содержать пробелы")
                 );
     }
 
@@ -217,7 +216,7 @@ public class UserControllerTests {
                         put("/users").content(req).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(mvcResult ->
-                        mvcResult.getResolvedException().getClass().equals(CustomValidationException.class)
+                        mvcResult.getResolvedException().getMessage().equals("Логин не может содержать пробелы")
                 );
     }
 

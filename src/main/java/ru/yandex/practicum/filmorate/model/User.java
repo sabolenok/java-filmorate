@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import ru.yandex.practicum.filmorate.validator.ValidLogin;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ public class User {
     @Email(message = "Электронная почта не соответствует формату")
     private String email;
     @NotBlank(message = "Логин не может быть пустым")
+    @ValidLogin(message = "Логин не может содержать пробелы")
     private String login;
     private String name;
     @PastOrPresent(message = "Дата рождения не может быть в будущем")

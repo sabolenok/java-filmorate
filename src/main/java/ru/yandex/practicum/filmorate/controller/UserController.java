@@ -29,10 +29,6 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        if (user.getLogin().contains(" ")) {
-            log.error("Логин не может содержать пробелы");
-            throw new CustomValidationException("Логин не может содержать пробелы");
-        }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -47,10 +43,6 @@ public class UserController {
         if (!users.containsKey(user.getId())) {
             log.error("Пользователь с Id = '{}' не найден", user.getId());
             throw new NotFoundException("Пользователь не найден");
-        }
-        if (user.getLogin().contains(" ")) {
-            log.error("Логин не может содержать пробелы");
-            throw new CustomValidationException("Логин не может содержать пробелы");
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
