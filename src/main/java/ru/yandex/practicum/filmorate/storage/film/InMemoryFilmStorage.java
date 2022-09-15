@@ -37,4 +37,9 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.put(film.getId(), film);
         return film;
     }
+
+    @Override
+    public Film findById(int id) {
+        return films.get(id);
+    }
 }
