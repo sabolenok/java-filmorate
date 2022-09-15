@@ -45,4 +45,9 @@ public class InMemoryUserStorage implements UserStorage {
         users.put(user.getId(), user);
         return user;
     }
+
+    @Override
+    public User findById(int id) {
+        return users.get(id);
+    }
 }

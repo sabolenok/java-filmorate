@@ -10,4 +10,6 @@ public interface UserStorage {
     User create(User user);
 
     User put(User user);
+
+    User findById(int id);
 }

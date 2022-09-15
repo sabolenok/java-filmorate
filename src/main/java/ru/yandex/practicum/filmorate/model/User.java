@@ -5,10 +5,12 @@ import ru.yandex.practicum.filmorate.validator.ValidLogin;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 public class User {
     private int id;
+    private Set<Integer> friends;
     @NotBlank(message = "Электронная почта не может быть пустой")
     @Email(message = "Электронная почта не соответствует формату")
     private String email;
