@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 @RestController
@@ -17,25 +18,25 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 @Slf4j
 public class FilmController {
 
-    private final FilmStorage filmStorage;
+    private final FilmService filmService;
 
-    public FilmController(FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
     @GetMapping
     public Collection<Film> findAll() {
-        return filmStorage.findAll();
+        return filmService.getFilmStorage().findAll();
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
         log.info("Получен запрос к эндпоинту POST /films");
-        return filmStorage.create(film);
+        return filmService.getFilmStorage().create(film);
     }
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
-        return filmStorage.put(film);
+        return filmService.getFilmStorage().put(film);
     }
 }
