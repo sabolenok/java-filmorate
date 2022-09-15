@@ -42,4 +42,9 @@ public class UserController {
         log.info("Получен запрос к эндпоинту: PUT /users");
         return userService.getUserStorage().put(user);
     }
+
+    @GetMapping("/users/{id}")
+    public User findById(@PathVariable Integer id) {
+        return userService.getUserStorage().findById(id);
+    }
 }

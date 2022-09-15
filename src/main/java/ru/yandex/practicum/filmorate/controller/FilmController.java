@@ -39,4 +39,9 @@ public class FilmController {
     public Film put(@Valid @RequestBody Film film) {
         return filmService.getFilmStorage().put(film);
     }
+
+    @GetMapping("/films/{id}")
+    public Film findById(@PathVariable Integer id) {
+        return filmService.getFilmStorage().findById(id);
+    }
 }
