@@ -18,25 +18,25 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
-    public void addLike(Integer filmId, Integer userId) {
+    public void like(Integer filmId, Integer userId) {
         Film film = filmStorage.findById(filmId);
         Set<Integer> likes = film.getLikes();
         likes.add(userId);
         film.setLikes(likes);
     }
 
-    public void removeLike(Integer filmId, Integer userId) {
+    public void dislike(Integer filmId, Integer userId) {
         Film film = filmStorage.findById(filmId);
         Set<Integer> likes = film.getLikes();
         likes.remove(userId);
         film.setLikes(likes);
     }
 
-    public List<Film> getMostPopular() {
+    public List<Film> getMostPopular(Integer count) {
         return filmStorage.findAll()
                 .stream()
                 .sorted(this::compare)
-                .limit(10)
+                .limit(count)
                 .collect(Collectors.toList());
     }
 
