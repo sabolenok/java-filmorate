@@ -50,4 +50,9 @@ public class UserService {
                 .filter(otherFriends::contains)
                 .collect(Collectors.toSet());
     }
+
+    public Set<Integer> getUsersFriends(Integer userId) {
+        User user = userStorage.findById(userId);
+        return user.getFriends();
+    }
 }

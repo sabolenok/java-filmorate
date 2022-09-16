@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
@@ -46,5 +47,25 @@ public class UserController {
     @GetMapping("/users/{id}")
     public User findById(@PathVariable Integer id) {
         return userService.getUserStorage().findById(id);
+    }
+
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public Set<Integer> getUsersFriends(@PathVariable Integer id) {
+        return userService.getUsersFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public Set<Integer> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+        return userService.commonFriends(id, otherId);
     }
 }
