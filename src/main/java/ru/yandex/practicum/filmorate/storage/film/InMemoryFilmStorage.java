@@ -11,10 +11,10 @@ import java.util.Map;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
-    private static Integer id;
+    private static Integer id = 0;
 
     private static Integer getNextId() {
-        return id++;
+        return ++id;
     }
 
     @Override
@@ -39,7 +39,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film findById(int id) {
+    public Film findById(Integer id) {
+        if (!films.containsKey(id)) {
+            throw new NotFoundException("Фильм не найден");
+        }
         return films.get(id);
     }
 }

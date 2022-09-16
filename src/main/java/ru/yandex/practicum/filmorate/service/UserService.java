@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,11 +19,12 @@ public class UserService {
 
     public void addFriend(Integer userId, Integer friendId) {
         User user = userStorage.findById(userId);
+        User friend = userStorage.findById(friendId);
+
         Set<Integer> friends = user.getFriends();
         friends.add(friendId);
         user.setFriends(friends);
 
-        User friend = userStorage.findById(friendId);
         friends = friend.getFriends();
         friends.add(userId);
         friend.setFriends(friends);
@@ -31,28 +32,38 @@ public class UserService {
 
     public void removeFriend(Integer userId, Integer friendId) {
         User user = userStorage.findById(userId);
+        User friend = userStorage.findById(friendId);
+
         Set<Integer> friends = user.getFriends();
         friends.remove(friendId);
         user.setFriends(friends);
 
-        User friend = userStorage.findById(friendId);
         friends = friend.getFriends();
         friends.remove(userId);
         friend.setFriends(friends);
     }
 
-    public Set<Integer> commonFriends(Integer userId, Integer otherId) {
+    public Collection<User> commonFriends(Integer userId, Integer otherId) {
         User user = userStorage.findById(userId);
         User other = userStorage.findById(otherId);
         Set<Integer> otherFriends = other.getFriends();
-        return user.getFriends()
+        Set<Integer> commonFriends = user.getFriends()
                 .stream()
                 .filter(otherFriends::contains)
                 .collect(Collectors.toSet());
+        List<User> common = new ArrayList<>();
+        for (Integer id : commonFriends) {
+            common.add(userStorage.findById(id));
+        }
+        return common;
     }
 
-    public Set<Integer> getUsersFriends(Integer userId) {
+    public Collection<User> getUsersFriends(Integer userId) {
         User user = userStorage.findById(userId);
-        return user.getFriends();
+        List<User> friends = new ArrayList<>();
+        for (Integer id : user.getFriends()) {
+            friends.add(userStorage.findById(id));
+        }
+        return friends;
     }
 }

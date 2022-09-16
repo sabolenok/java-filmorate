@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.Getter;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
@@ -28,6 +29,9 @@ public class FilmService {
     public void dislike(Integer filmId, Integer userId) {
         Film film = filmStorage.findById(filmId);
         Set<Integer> likes = film.getLikes();
+        if (!likes.contains(userId)) {
+            throw new NotFoundException("Лайк к фильму не найден");
+        }
         likes.remove(userId);
         film.setLikes(likes);
     }
@@ -43,6 +47,7 @@ public class FilmService {
     private int compare(Film f0, Film f1) {
         Integer likes0 = f0.getLikes().size();
         Integer likes1 = f1.getLikes().size();
-        return likes0.compareTo(likes1);
+        int result = likes0.compareTo(likes1);
+        return (-1 * result);   // нужна сортировка по убыванию
     }
 }

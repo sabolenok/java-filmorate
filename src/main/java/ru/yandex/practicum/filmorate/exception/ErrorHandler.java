@@ -16,6 +16,12 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIncorrectParam(final IncorrectParameterException e) {
+        return new ErrorResponse(String.format("Ошибка с полем \"%s\".", e.getParameter()));
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(final NotFoundException e) {
         return new ErrorResponse(e.getMessage());

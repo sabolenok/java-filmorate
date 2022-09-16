@@ -11,10 +11,10 @@ import java.util.Map;
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
-    private static Integer id;
+    private static Integer id = 0;
 
     private static Integer getNextId() {
-        return id++;
+        return ++id;
     }
 
     @Override
@@ -47,7 +47,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User findById(int id) {
+    public User findById(Integer id) {
+        if (!users.containsKey(id)) {
+            throw new NotFoundException("Пользователь не найден");
+        }
         return users.get(id);
     }
 }

@@ -11,5 +11,5 @@ public interface FilmStorage {
 
     Film put(Film film);
 
-    Film findById(int id);
+    Film findById(Integer id);
 }
