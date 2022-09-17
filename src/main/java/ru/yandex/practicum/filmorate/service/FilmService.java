@@ -39,15 +39,13 @@ public class FilmService {
     public List<Film> getMostPopular(Integer count) {
         return filmStorage.findAll()
                 .stream()
-                .sorted(this::compare)
+                .sorted(this::reverseCompare)
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
-    private int compare(Film f0, Film f1) {
-        Integer likes0 = f0.getLikes().size();
-        Integer likes1 = f1.getLikes().size();
-        int result = likes0.compareTo(likes1);
+    private int reverseCompare(Film f0, Film f1) {
+        int result = Integer.compare(f0.getLikes().size(), f1.getLikes().size());
         return (-1 * result);   // нужна сортировка по убыванию
     }
 }
