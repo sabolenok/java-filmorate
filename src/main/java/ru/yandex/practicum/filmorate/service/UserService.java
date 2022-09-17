@@ -47,23 +47,15 @@ public class UserService {
         User user = userStorage.findById(userId);
         User other = userStorage.findById(otherId);
         Set<Integer> otherFriends = other.getFriends();
-        Set<Integer> commonFriends = user.getFriends()
+        return user.getFriends()
                 .stream()
                 .filter(otherFriends::contains)
-                .collect(Collectors.toSet());
-        List<User> common = new ArrayList<>();
-        for (Integer id : commonFriends) {
-            common.add(userStorage.findById(id));
-        }
-        return common;
+                .map(userStorage::findById)
+                .collect(Collectors.toList());
     }
 
     public Collection<User> getUsersFriends(Integer userId) {
         User user = userStorage.findById(userId);
-        List<User> friends = new ArrayList<>();
-        for (Integer id : user.getFriends()) {
-            friends.add(userStorage.findById(id));
-        }
-        return friends;
+        return user.getFriends().stream().map(userStorage::findById).collect(Collectors.toList());
     }
 }

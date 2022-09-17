@@ -24,10 +24,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-
+        checkName(user);
         user.setId(getNextId());
         users.put(user.getId(), user);
         return user;
@@ -38,12 +35,15 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(user.getId())) {
             throw new NotFoundException("Пользователь не найден");
         }
+        checkName(user);
+        users.put(user.getId(), user);
+        return user;
+    }
+
+    private void checkName(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-
-        users.put(user.getId(), user);
-        return user;
     }
 
     @Override
