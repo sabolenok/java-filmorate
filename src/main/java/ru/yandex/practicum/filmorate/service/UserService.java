@@ -17,6 +17,22 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
+    public Collection<User> findAll() {
+        return userStorage.findAll();
+    }
+
+    public User create(User user) {
+        return userStorage.create(user);
+    }
+
+    public User put(User user) {
+        return userStorage.put(user);
+    }
+
+    public User findById(Integer id) {
+        return userStorage.findById(id);
+    }
+
     public void addFriend(Integer userId, Integer friendId) {
         User user = userStorage.findById(userId);
         User friend = userStorage.findById(friendId);

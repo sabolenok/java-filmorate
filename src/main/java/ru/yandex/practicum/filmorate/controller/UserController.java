@@ -23,24 +23,24 @@ public class UserController {
 
     @GetMapping()
     public Collection<User> findAll() {
-        return userService.getUserStorage().findAll();
+        return userService.findAll();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
         log.info("Получен запрос к эндпоинту: POST /users");
-        return userService.getUserStorage().create(user);
+        return userService.create(user);
     }
 
     @PutMapping
     public User put(@Valid @RequestBody User user) {
         log.info("Получен запрос к эндпоинту: PUT /users");
-        return userService.getUserStorage().put(user);
+        return userService.put(user);
     }
 
     @GetMapping("/{id}")
     public User findById(@PathVariable Integer id) {
-        return userService.getUserStorage().findById(id);
+        return userService.findById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
