@@ -7,13 +7,11 @@ import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 @RestController
 @RequestMapping("/films")
-@Slf4j
 public class FilmController {
 
     private final FilmService filmService;
@@ -31,7 +29,6 @@ public class FilmController {
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        log.info("Получен запрос к эндпоинту POST /films");
         return filmService.create(film);
     }
 

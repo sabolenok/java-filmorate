@@ -5,14 +5,12 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
 
-import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.*;
 
 @RestController
 @RequestMapping("/users")
-@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -28,13 +26,11 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        log.info("Получен запрос к эндпоинту: POST /users");
         return userService.create(user);
     }
 
     @PutMapping
     public User put(@Valid @RequestBody User user) {
-        log.info("Получен запрос к эндпоинту: PUT /users");
         return userService.put(user);
     }
 
