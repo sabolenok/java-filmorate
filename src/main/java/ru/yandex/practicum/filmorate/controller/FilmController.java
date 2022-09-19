@@ -9,6 +9,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 @RestController
 @RequestMapping("/films")
@@ -16,9 +17,11 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 public class FilmController {
 
     private final FilmService filmService;
+    private final UserService userService;
 
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, UserService userService) {
         this.filmService = filmService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -44,11 +47,15 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void like(@PathVariable Integer id, @PathVariable Integer userId) {
+        // Проверка, существует ли такой пользователь. Если его нет, выбросит NotFoundException
+        userService.findById(userId);
         filmService.like(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void dislike(@PathVariable Integer id, @PathVariable Integer userId) {
+        // Проверка, существует ли такой пользователь. Если его нет, выбросит NotFoundException
+        userService.findById(userId);
         filmService.dislike(id, userId);
     }
 

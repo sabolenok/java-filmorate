@@ -44,9 +44,6 @@ public class FilmService {
     public void dislike(Integer filmId, Integer userId) {
         Film film = filmStorage.findById(filmId);
         Set<Integer> likes = film.getLikes();
-        if (!likes.contains(userId)) {
-            throw new NotFoundException("Лайк к фильму не найден");
-        }
         likes.remove(userId);
         film.setLikes(likes);
     }
