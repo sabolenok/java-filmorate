@@ -11,6 +11,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -27,6 +31,14 @@ public class FilmControllerTests {
     private ObjectMapper objectMapper;
     @SpyBean
     private FilmController filmController;
+    @SpyBean
+    private FilmService filmService;
+    @SpyBean
+    private InMemoryFilmStorage filmStorage;
+    @SpyBean
+    private UserService userService;
+    @SpyBean
+    private InMemoryUserStorage userStorage;
 
     @Test
     void shouldReturnCollectionWithTwoCreatedFilmsGetRequestTest() throws Exception {
@@ -74,7 +86,9 @@ public class FilmControllerTests {
                 .getContentAsString();
         Assertions.assertEquals(
                 response,
-                "{\"id\":1,\"name\":\"1st film's name\",\"description\":\"1st film's description\",\"releaseDate\":\"1895-12-29\",\"duration\":65}"
+                "{\"id\":"
+                        + filmStorage.getId()
+                        + ",\"likes\":[],\"name\":\"1st film's name\",\"description\":\"1st film's description\",\"releaseDate\":\"1895-12-29\",\"duration\":65}"
         );
     }
 
@@ -88,7 +102,7 @@ public class FilmControllerTests {
         );
         String req = objectMapper.writeValueAsString(film1);
         mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
-        film1.setId(1);
+        film1.setId(filmStorage.getId());
         film1.setDuration(120);
         req = objectMapper.writeValueAsString(film1);
         String response = mockMvc.perform(
@@ -100,25 +114,26 @@ public class FilmControllerTests {
                 .getContentAsString();
         Assertions.assertEquals(
                 response,
-                "{\"id\":1,\"name\":\"1st film's name\",\"description\":\"1st film's description\",\"releaseDate\":\"1895-12-29\",\"duration\":120}"
+                "{\"id\":"
+                        + filmStorage.getId()
+                        + ",\"likes\":[],\"name\":\"1st film's name\",\"description\":\"1st film's description\",\"releaseDate\":\"1895-12-29\",\"duration\":120}"
         );
     }
 
     @Test
     void shouldThrowNotFoundException() throws Exception {
-        Film film3 = new Film(
+        Film film42 = new Film(
                 "3d film's name",
                 "3d film's description",
                 RELEASE_START_DATE.plusDays(1),
                 100
         );
-        String req = objectMapper.writeValueAsString(film3);
-        // контроллер присвоит фильму самый первый id, т.е. = 1
+        String req = objectMapper.writeValueAsString(film42);
         mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
-        // поставим вручную фильму id = 3, и попробуем обновить его продолжительность
-        film3.setId(3);
-        film3.setDuration(95);
-        req = objectMapper.writeValueAsString(film3);
+        // поставим вручную фильму id = 42, и попробуем обновить его продолжительность
+        film42.setId(42);
+        film42.setDuration(95);
+        req = objectMapper.writeValueAsString(film42);
         // должны получить статус 404
         mockMvc.perform(put("/films").content(req).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
@@ -151,7 +166,7 @@ public class FilmControllerTests {
         );
         String req = objectMapper.writeValueAsString(film1);
         mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
-        film1.setId(1);
+        film1.setId(filmStorage.getId());
         film1.setReleaseDate(RELEASE_START_DATE.minusDays(1));
         req = objectMapper.writeValueAsString(film1);
         mockMvc.perform(
@@ -189,7 +204,7 @@ public class FilmControllerTests {
         );
         String req = objectMapper.writeValueAsString(film1);
         mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
-        film1.setId(1);
+        film1.setId(filmStorage.getId());
         film1.setName("");
         req = objectMapper.writeValueAsString(film1);
         mockMvc.perform(
@@ -233,7 +248,7 @@ public class FilmControllerTests {
         );
         String req = objectMapper.writeValueAsString(film1);
         mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
-        film1.setId(1);
+        film1.setId(filmStorage.getId());
         film1.setDescription("A long time ago in a galaxy far, far away... " +
                 "It is a period of civil war. Rebel spaceships, striking from a hidden base, " +
                 "have won their first victory against the evil Galactic Empire. During the battle, " +
@@ -279,7 +294,7 @@ public class FilmControllerTests {
         );
         String req = objectMapper.writeValueAsString(film1);
         mockMvc.perform(post("/films").content(req).contentType(MediaType.APPLICATION_JSON));
-        film1.setId(1);
+        film1.setId(filmStorage.getId());
         film1.setDuration(-1);
         req = objectMapper.writeValueAsString(film1);
         mockMvc.perform(

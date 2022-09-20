@@ -11,6 +11,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -26,6 +28,10 @@ public class UserControllerTests {
     private ObjectMapper objectMapper;
     @SpyBean
     private UserController userController;
+    @SpyBean
+    private UserService userService;
+    @SpyBean
+    private InMemoryUserStorage userStorage;
 
     @Test
     void shouldReturnCollectionWithTwoCreatedUsersGetRequestTest() throws Exception {
@@ -73,7 +79,9 @@ public class UserControllerTests {
                 .getContentAsString();
         Assertions.assertEquals(
                 response,
-                "{\"id\":1,\"email\":\"mail@mail.ru\",\"login\":\"login1\",\"name\":\"New Name\",\"birthday\":\"1900-01-01\"}"
+                "{\"id\":"
+                        + userStorage.getId()
+                        + ",\"friends\":[],\"email\":\"mail@mail.ru\",\"login\":\"login1\",\"name\":\"New Name\",\"birthday\":\"1900-01-01\"}"
         );
     }
 
@@ -87,7 +95,7 @@ public class UserControllerTests {
         );
         String req = objectMapper.writeValueAsString(user1);
         mockMvc.perform(post("/users").content(req).contentType(MediaType.APPLICATION_JSON));
-        user1.setId(1);
+        user1.setId(userStorage.getId());
         user1.setName("One More Name");
         req = objectMapper.writeValueAsString(user1);
         String response = mockMvc.perform(
@@ -99,25 +107,26 @@ public class UserControllerTests {
                 .getContentAsString();
         Assertions.assertEquals(
                 response,
-                "{\"id\":1,\"email\":\"mail@mail.ru\",\"login\":\"login1\",\"name\":\"One More Name\",\"birthday\":\"1900-01-01\"}"
+                "{\"id\":"
+                        + userStorage.getId()
+                        + ",\"friends\":[],\"email\":\"mail@mail.ru\",\"login\":\"login1\",\"name\":\"One More Name\",\"birthday\":\"1900-01-01\"}"
         );
     }
 
     @Test
     void shouldThrowNotFoundException() throws Exception {
-        User user3 = new User(
+        User user42 = new User(
                 "mail@mail.ru",
                 "login3",
                 "New Name",
                 LocalDate.of(1900, 1, 1)
         );
-        String req = objectMapper.writeValueAsString(user3);
-        // контроллер присвоит пользователю самый первый id, т.е. = 1
+        String req = objectMapper.writeValueAsString(user42);
         mockMvc.perform(post("/users").content(req).contentType(MediaType.APPLICATION_JSON));
-        // поставим вручную пользователю id = 3, и попробуем обновить его имя
-        user3.setId(3);
-        user3.setName("OneMore Name");
-        req = objectMapper.writeValueAsString(user3);
+        // поставим вручную пользователю id = 42, и попробуем обновить его имя
+        user42.setId(42);
+        user42.setName("OneMore Name");
+        req = objectMapper.writeValueAsString(user42);
         // должны получить статус 404
         mockMvc.perform(put("/users").content(req).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
@@ -150,7 +159,7 @@ public class UserControllerTests {
         );
         String req = objectMapper.writeValueAsString(user1);
         mockMvc.perform(post("/users").content(req).contentType(MediaType.APPLICATION_JSON));
-        user1.setId(1);
+        user1.setId(userStorage.getId());
         user1.setBirthday(LocalDate.now().plusDays(1));
         req = objectMapper.writeValueAsString(user1);
         mockMvc.perform(
@@ -201,7 +210,7 @@ public class UserControllerTests {
         );
         String req = objectMapper.writeValueAsString(user1);
         mockMvc.perform(post("/users").content(req).contentType(MediaType.APPLICATION_JSON));
-        user1.setId(1);
+        user1.setId(userStorage.getId());
         user1.setLogin("");
         req = objectMapper.writeValueAsString(user1);
         mockMvc.perform(
@@ -264,7 +273,7 @@ public class UserControllerTests {
         );
         String req = objectMapper.writeValueAsString(user1);
         mockMvc.perform(post("/users").content(req).contentType(MediaType.APPLICATION_JSON));
-        user1.setId(1);
+        user1.setId(userStorage.getId());
         user1.setEmail("");
         req = objectMapper.writeValueAsString(user1);
         mockMvc.perform(
@@ -288,14 +297,13 @@ public class UserControllerTests {
     }
 
     @Test
-    void shouldReturnStatus400TryingToPostEmptyRequest() throws Exception {
+    void shouldReturnStatus500TryingToPostEmptyRequest() throws Exception {
         mockMvc.perform(post("/users").content("").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
-
     }
 
     @Test
-    void shouldReturnStatus400TryingToPutEmptyRequest() throws Exception {
+    void shouldReturnStatus500TryingToPutEmptyRequest() throws Exception {
         User user1 = new User(
                 "mail@mail.ru",
                 "login1",
