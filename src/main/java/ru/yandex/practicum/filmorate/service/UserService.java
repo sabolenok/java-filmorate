@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class UserService {
     @Getter
     @Qualifier("inDbUser")
-    private final UserStorage userStorage;
+    private final UserDbStorage userStorage;
 
     public UserService(UserDbStorage userStorage) {
         this.userStorage = userStorage;
@@ -44,49 +44,21 @@ public class UserService {
 
     public void addFriend(Integer userId, Integer friendId) {
         log.info("Получен запрос к эндпоинту PUT /users/{id}/friends/{friendId}");
-        User user = userStorage.findById(userId);
-        User friend = userStorage.findById(friendId);
-
-        Set<Integer> friends = user.getFriends();
-        friends.add(friendId);
-        user.setFriends(friends);
-
-        friends = friend.getFriends();
-        friends.add(userId);
-        friend.setFriends(friends);
-        log.info("Пользователи '{}' и '{}' теперь друзья", user.getName(), friend.getName());
+        userStorage.addFriend(userId, friendId);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
         log.info("Получен запрос к эндпоинту DELETE /users/{id}/friends/{friendId}");
-        User user = userStorage.findById(userId);
-        User friend = userStorage.findById(friendId);
-
-        Set<Integer> friends = user.getFriends();
-        friends.remove(friendId);
-        user.setFriends(friends);
-
-        friends = friend.getFriends();
-        friends.remove(userId);
-        friend.setFriends(friends);
-        log.info("Пользователи '{}' и '{}' больше не друзья", user.getName(), friend.getName());
+        userStorage.removeFriend(userId, friendId);
     }
 
     public Collection<User> commonFriends(Integer userId, Integer otherId) {
         log.info("Получен запрос к эндпоинту GET /users//{id}/friends/common/{otherId}");
-        User user = userStorage.findById(userId);
-        User other = userStorage.findById(otherId);
-        Set<Integer> otherFriends = other.getFriends();
-        return user.getFriends()
-                .stream()
-                .filter(otherFriends::contains)
-                .map(userStorage::findById)
-                .collect(Collectors.toList());
+        return userStorage.commonFriends(userId, otherId);
     }
 
     public Collection<User> getUsersFriends(Integer userId) {
         log.info("Получен запрос к эндпоинту GET /users/{id}/friends");
-        User user = userStorage.findById(userId);
-        return user.getFriends().stream().map(userStorage::findById).collect(Collectors.toList());
+        return userStorage.getUsersFriends(userId);
     }
 }

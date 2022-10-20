@@ -15,10 +15,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component("inDbUser")
 @Slf4j
@@ -122,23 +120,98 @@ public class UserDbStorage implements UserStorage {
             friend.setFriends(friends);
 
             SqlRowSet friendshipStatus = jdbcTemplate.queryForRowSet("select * from friendship_status where status_name = ?", "Подтверждено");
-            jdbcTemplate.update(
-                    "update friendship set status_id = ? (where user1_id = ? and user2_id = ?) or (user1_id = ? and user2_id = ?)",
-                    friendshipStatus.getInt("status_id"),
-                    userId,
-                    friendId,
-                    friendId,
-                    userId
-            );
+            if (friendshipStatus.next()) {
+                jdbcTemplate.update(
+                        "update friendship set status_id = ? (where user1_id = ? and user2_id = ?) or (user1_id = ? and user2_id = ?)",
+                        friendshipStatus.getInt("status_id"),
+                        userId,
+                        friendId,
+                        friendId,
+                        userId
+                );
+            }
         } else {
             SqlRowSet friendshipStatus = jdbcTemplate.queryForRowSet("select * from friendship_status where status_name = ?", "Отправлен запрос");
-            jdbcTemplate.update(
-                    "insert into friendship (user1_id, user2_id, status_id) values (?, ?, ?)",
-                    userId,
-                    friendId,
-                    friendshipStatus.getInt("status_id")
-            );
+            if (friendshipStatus.next()) {
+                jdbcTemplate.update(
+                        "insert into friendship (user1_id, user2_id, status_id) values (?, ?, ?)",
+                        userId,
+                        friendId,
+                        friendshipStatus.getInt("status_id")
+                );
+            }
         }
+        log.info("Пользователи '{}' и '{}' теперь друзья", user.getName(), friend.getName());
+    }
+
+    public void removeFriend(Integer userId, Integer friendId) {
+        User user = findById(userId);
+        User friend = findById(friendId);
+
+        Set<Integer> friends = user.getFriends();
+        friends.remove(friendId);
+        user.setFriends(friends);
+
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(
+                "select * from friendship where user1_id = ? and user2_id = ?",
+                userId,
+                friendId);
+        if (userRows.next()) {
+            jdbcTemplate.update(
+                    "delete from friendship where user1_id = ? and user2_id = ?",
+                    userId,
+                    friendId
+            );
+            SqlRowSet friendRows = jdbcTemplate.queryForRowSet(
+                    "select * from friendship where user1_id = ? and user2_id = ?",
+                    friendId,
+                    userId);
+            if (friendRows.next()) {
+                SqlRowSet friendshipStatus = jdbcTemplate.queryForRowSet("select * from friendship_status where status_name = ?", "Отправлен запрос");
+                if (friendshipStatus.next()) {
+                    jdbcTemplate.update(
+                            "update friendship set status_id = ? where user1_id = ? and user2_id = ?",
+                            friendshipStatus.getInt("status_id"),
+                            friendId,
+                            userId
+                    );
+                }
+            }
+        }
+        log.info("Пользователи '{}' и '{}' больше не друзья", user.getName(), friend.getName());
+    }
+
+    public Collection<User> commonFriends(Integer userId, Integer otherId) {
+        User user = findById(userId);
+        User other = findById(otherId);
+        List<User> common = new ArrayList<>();
+
+        SqlRowSet commonRows = jdbcTemplate.queryForRowSet(
+                "SELECT f1.USER2_ID FROM FRIENDSHIP AS f1 INNER JOIN FRIENDSHIP AS f2 " +
+                        "ON f1.USER2_ID = f2.USER2_ID WHERE f1.USER1_ID = ? AND f2.USER1_ID = ?",
+                userId,
+                otherId
+        );
+        while (commonRows.next()) {
+            common.add(findById(commonRows.getInt("USER2_ID")));
+        }
+
+        return common;
+    }
+
+    public Collection<User> getUsersFriends(Integer userId) {
+        User user = findById(userId);
+        List<User> friends = new ArrayList<>();
+
+        SqlRowSet friendsRows = jdbcTemplate.queryForRowSet(
+                "SELECT USER2_ID FROM FRIENDSHIP WHERE USER1_ID = ?",
+                userId
+        );
+        while (friendsRows.next()) {
+            friends.add(findById(friendsRows.getInt("USER2_ID")));
+        }
+        
+        return friends;
     }
 
     private void checkName(User user) {
