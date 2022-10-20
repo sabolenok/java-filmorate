@@ -1,20 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
-public enum Rating {
-    G("G"),
-    PG("PG"),
-    PG13("PG-13"),
-    R("R"),
-    NC17("NC-17");
+import lombok.Data;
 
-    String value;
+@Data
+public class Rating {
+    private int id;
+    private String name;
 
-    Rating(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return value;
+    public Rating(int id, String name) {
+        this.id = id;
+        this.name = name;
     }
 }
