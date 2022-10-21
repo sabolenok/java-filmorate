@@ -20,8 +20,9 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительной")
     private int duration;
-    private Genre genre;
-    private Rating rating;
+    private Set<Genre> genres = new HashSet<>();
+    @NotNull
+    private Rating mpa;
 
     public Film(String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;
