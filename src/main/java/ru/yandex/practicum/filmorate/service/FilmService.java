@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
@@ -83,5 +84,15 @@ public class FilmService {
     public List<Rating> findAllMpa() {
         log.info("Получен запрос к эндпоинту GET /mpa");
         return filmStorage.findAllMpa();
+    }
+
+    public Genre findGenreById(Integer genreId) {
+        log.info("Получен запрос к эндпоинту GET /genres/{id}");
+        return filmStorage.findGenreById(genreId);
+    }
+
+    public List<Genre> findAllGenres() {
+        log.info("Получен запрос к эндпоинту GET /genres");
+        return filmStorage.findAllGenres();
     }
 }
