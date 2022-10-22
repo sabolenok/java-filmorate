@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -72,5 +73,15 @@ public class FilmService {
     private int reverseCompare(Film f0, Film f1) {
         int result = Integer.compare(f0.getLikes().size(), f1.getLikes().size());
         return (-1 * result);   // нужна сортировка по убыванию
+    }
+
+    public Rating findMpaById(Integer mpaId) {
+        log.info("Получен запрос к эндпоинту GET /mpa/{id}");
+        return filmStorage.findMpaById(mpaId);
+    }
+
+    public List<Rating> findAllMpa() {
+        log.info("Получен запрос к эндпоинту GET /mpa");
+        return filmStorage.findAllMpa();
     }
 }

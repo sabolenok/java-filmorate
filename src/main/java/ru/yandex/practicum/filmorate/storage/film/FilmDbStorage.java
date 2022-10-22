@@ -198,4 +198,28 @@ public class FilmDbStorage implements FilmStorage {
         }
         return popular;
     }
+
+    public Rating findMpaById(Integer mpaId) {
+        SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(
+                "SELECT * FROM rating WHERE rating_id = ?",
+                mpaId
+        );
+        if (mpaRows.next()) {
+            return new Rating(mpaRows.getInt("rating_id"), mpaRows.getString("rating_name"));
+        } else {
+            log.info("Рейтинг с идентификатором {} не найден.", mpaId);
+            throw new NotFoundException("Рейтинг не найден");
+        }
+    }
+
+    public List<Rating> findAllMpa() {
+        List<Rating> mpa = new ArrayList<>();
+        SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(
+                "SELECT * FROM rating"
+        );
+        while (mpaRows.next()) {
+            mpa.add(new Rating(mpaRows.getInt("rating_id"), mpaRows.getString("rating_name")));
+        }
+        return mpa;
+    }
 }
