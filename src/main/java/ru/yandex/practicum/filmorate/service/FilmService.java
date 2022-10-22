@@ -1,11 +1,14 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,7 +19,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FilmService {
     @Qualifier("inDbFilm")
-    private final FilmStorage filmStorage;
+    private final FilmDbStorage filmStorage;
+    @Autowired
+    private UserDbStorage userStorage;
 
     public FilmService(FilmDbStorage filmStorage) {
         this.filmStorage = filmStorage;
@@ -46,32 +51,22 @@ public class FilmService {
         log.info("Получен запрос к эндпоинту PUT /films/{id}/like/{userId}");
 
         Film film = filmStorage.findById(filmId);
-        Set<Integer> likes = film.getLikes();
-        likes.add(userId);
-        film.setLikes(likes);
-
-        log.info("К фильму '{}' добавлен лайк", film.getName());
+        userStorage.findById(userId);
+        filmStorage.like(film, userId);
     }
 
     public void dislike(Integer filmId, Integer userId) {
         log.info("Получен запрос к эндпоинту DELETE /films/{id}/like/{userId}");
 
         Film film = filmStorage.findById(filmId);
-        Set<Integer> likes = film.getLikes();
-        likes.remove(userId);
-        film.setLikes(likes);
-
-        log.info("С фильма '{}' снят лайк", film.getName());
+        userStorage.findById(userId);
+        filmStorage.dislike(film, userId);
     }
 
     public List<Film> getMostPopular(Integer count) {
         log.info("Получен запрос к эндпоинту GET /films/popular");
 
-        return filmStorage.findAll()
-                .stream()
-                .sorted(this::reverseCompare)
-                .limit(count)
-                .collect(Collectors.toList());
+        return filmStorage.getMostPopular(count);
     }
 
     private int reverseCompare(Film f0, Film f1) {

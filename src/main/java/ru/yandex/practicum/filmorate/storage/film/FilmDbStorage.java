@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -25,8 +26,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class FilmDbStorage implements FilmStorage {
 
-    @Getter
-    private static Integer id = 0;
     @Autowired
     private final JdbcTemplate jdbcTemplate;
 
@@ -144,10 +143,59 @@ public class FilmDbStorage implements FilmStorage {
                 filmGenres.add(new Genre(filmGenreRows.getInt("genre_id"), filmGenreRows.getString("genre_name")));
             }
             film.setGenres(filmGenres);
+            SqlRowSet filmLikesRows = jdbcTemplate.queryForRowSet(
+                    "select user_id from films_likes where film_id = ?",
+                    film.getId()
+            );
+            Set<Integer> filmLikes = new HashSet<>();
+            while (filmLikesRows.next()) {
+                filmLikes.add(filmLikesRows.getInt("user_id"));
+            }
+            film.setLikes(filmLikes);
             return film;
         } else {
             log.info("Фильм с идентификатором {} не найден.", id);
             throw new NotFoundException("Фильм не найден");
         }
+    }
+
+    public void like(Film film, Integer userId) {
+        Set<Integer> likes = film.getLikes();
+        likes.add(userId);
+        film.setLikes(likes);
+
+        jdbcTemplate.update(
+                "insert into films_likes (film_id, user_id) values (?, ?)",
+                film.getId(),
+                userId
+        );
+
+        log.info("К фильму '{}' добавлен лайк", film.getName());
+    }
+
+    public void dislike(Film film, Integer userId) {
+        Set<Integer> likes = film.getLikes();
+        likes.remove(userId);
+        film.setLikes(likes);
+
+        jdbcTemplate.update(
+                "delete from films_likes where film_id = ? and user_id = ?",
+                film.getId(),
+                userId
+        );
+
+        log.info("С фильма '{}' снят лайк", film.getName());
+    }
+
+    public List<Film> getMostPopular(Integer count) {
+        List<Film> popular = new ArrayList<>();
+        SqlRowSet likesRows = jdbcTemplate.queryForRowSet(
+                "SELECT f.film_id, count(fl.user_id) FROM films AS f LEFT JOIN films_likes AS fl ON f.film_id = fl.film_id GROUP BY f.film_id ORDER BY count(fl.user_id) DESC LIMIT ?",
+                count
+        );
+        while (likesRows.next()) {
+            popular.add(findById(likesRows.getInt("film_id")));
+        }
+        return popular;
     }
 }

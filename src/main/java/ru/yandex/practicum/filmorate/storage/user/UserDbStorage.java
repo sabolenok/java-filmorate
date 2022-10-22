@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserDbStorage implements UserStorage {
 
-    @Getter
-    private static Integer id = 0;
     @Autowired
     private final JdbcTemplate jdbcTemplate;
 
