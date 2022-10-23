@@ -205,7 +205,7 @@ public class UserDbStorage implements UserStorage {
         while (friendsRows.next()) {
             friends.add(findById(friendsRows.getInt("USER2_ID")));
         }
-        
+
         return friends;
     }
 
@@ -213,5 +213,9 @@ public class UserDbStorage implements UserStorage {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+    }
+
+    public Optional<User> findUserById(int i) {
+        return Optional.ofNullable(findById(i));
     }
 }
