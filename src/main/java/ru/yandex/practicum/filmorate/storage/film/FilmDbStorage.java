@@ -277,4 +277,8 @@ public class FilmDbStorage implements FilmStorage {
         }
         return genres;
     }
+
+    public Optional<Film> findFilmById(int i) {
+        return Optional.ofNullable(findById(i));
+    }
 }
