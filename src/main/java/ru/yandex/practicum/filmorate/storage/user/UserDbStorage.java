@@ -117,12 +117,17 @@ public class UserDbStorage implements UserStorage {
             SqlRowSet friendshipStatus = jdbcTemplate.queryForRowSet("select * from friendship_status where status_name = ?", "Подтверждено");
             if (friendshipStatus.next()) {
                 jdbcTemplate.update(
-                        "update friendship set status_id = ? (where user1_id = ? and user2_id = ?) or (user1_id = ? and user2_id = ?)",
-                        friendshipStatus.getInt("status_id"),
+                        "delete from friendship where friendship_id = ?",
+                        userRows.getInt("friendship_id")
+                );
+                jdbcTemplate.update(
+                        "insert into friendship (user1_id, user2_id, status_id) values (?, ?, ?), (?, ?, ?)",
                         userId,
                         friendId,
+                        friendshipStatus.getInt("status_id"),
                         friendId,
-                        userId
+                        userId,
+                        friendshipStatus.getInt("status_id")
                 );
             }
         } else {
