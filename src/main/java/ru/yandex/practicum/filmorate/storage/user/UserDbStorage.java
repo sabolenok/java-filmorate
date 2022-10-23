@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,9 +13,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component("inDbUser")
 @Slf4j
@@ -68,7 +65,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User put(User user) {
         checkName(user);
-        User foundUser = findById(user.getId());
+        findById(user.getId());
         jdbcTemplate.update(
                 "update users set email = ?, login = ?, user_name = ?, birthday = ? where user_id = ?",
                 user.getEmail(),
@@ -180,8 +177,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     public Collection<User> commonFriends(Integer userId, Integer otherId) {
-        User user = findById(userId);
-        User other = findById(otherId);
+        findById(userId);
+        findById(otherId);
         List<User> common = new ArrayList<>();
 
         SqlRowSet commonRows = jdbcTemplate.queryForRowSet(
@@ -198,7 +195,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     public Collection<User> getUsersFriends(Integer userId) {
-        User user = findById(userId);
+        findById(userId);
         List<User> friends = new ArrayList<>();
 
         SqlRowSet friendsRows = jdbcTemplate.queryForRowSet(

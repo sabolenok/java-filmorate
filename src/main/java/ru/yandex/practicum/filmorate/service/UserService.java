@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
@@ -14,13 +15,10 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class UserService {
+    @Autowired
     @Getter
     @Qualifier("inDbUser")
-    private final UserDbStorage userStorage;
-
-    public UserService(UserDbStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private UserDbStorage userStorage;
 
     public Collection<User> findAll() {
         log.info("Получен запрос к эндпоинту GET /users");
