@@ -75,12 +75,20 @@ class FilmorateApplicationTests {
 
     @Test
     public void shouldThrowNotFoundExceptionCreateUser() {
-        Assertions.assertThrows(NotFoundException.class, () -> userStorage.findUserById(42));
+        try {
+            userStorage.findUserById(42);
+        } catch (NotFoundException e) {
+            Assertions.assertEquals("Пользователь не найден", e.getMessage());
+        }
     }
 
     @Test
     public void shouldThrowNotFoundExceptionCreateFilm() {
-        Assertions.assertThrows(NotFoundException.class, () -> filmStorage.findFilmById(42));
+        try {
+            filmStorage.findFilmById(42);
+        } catch (NotFoundException e) {
+            Assertions.assertEquals("Фильм не найден", e.getMessage());
+        }
     }
 
     @Test
