@@ -65,11 +65,6 @@ public class FilmService {
         return filmStorage.getMostPopular(count);
     }
 
-    private int reverseCompare(Film f0, Film f1) {
-        int result = Integer.compare(f0.getLikes().size(), f1.getLikes().size());
-        return (-1 * result);   // нужна сортировка по убыванию
-    }
-
     public Rating findMpaById(Integer mpaId) {
         log.info("Получен запрос к эндпоинту GET /mpa/{id}");
         return filmStorage.findMpaById(mpaId);
